@@ -12,12 +12,23 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
  private WebView webView;
  private static final String HOME="https://coradicker95.netlify.app/";
+ private static final String APP_CLEANUP =
+   "(function(){"+
+   "var b=document.getElementById('pwaInstallBtn');if(b)b.remove();"+
+   "var m=document.getElementById('pwaInstallMsg');if(m)m.remove();"+
+   "var s=document.getElementById('pwa-install-style');if(s)s.remove();"+
+   "})();";
+
  @Override protected void onCreate(Bundle state){
   super.onCreate(state); setContentView(R.layout.activity_main);
   webView=findViewById(R.id.webview);
   WebSettings s=webView.getSettings(); s.setJavaScriptEnabled(true); s.setDomStorageEnabled(true);
   s.setDatabaseEnabled(true); s.setAllowFileAccess(false); s.setAllowContentAccess(false);
   webView.setWebViewClient(new WebViewClient(){
+   @Override public void onPageFinished(WebView view,String url){
+    super.onPageFinished(view,url);
+    view.evaluateJavascript(APP_CLEANUP,null);
+   }
    @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r){
     Uri u=r.getUrl(); String scheme=u.getScheme()==null?"":u.getScheme();
     if("tel".equals(scheme)){ startActivity(new Intent(Intent.ACTION_DIAL,u)); return true; }
