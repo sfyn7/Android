@@ -18,7 +18,7 @@ import androidx.core.app.ActivityCompat;
 
 public class MainActivity extends AppCompatActivity {
  private WebView webView;
- private static final String HOME="file:///android_asset/home.html";
+ private static final String HOME="https://coradicker95.netlify.app/";
  private static final String REWARD_RECIPIENT="https://www.facebook.com/profile.php?id=61581512888435";
  private static final String REMOTE="https://coradicker95.netlify.app/";
  private static final String REMOTE_DECOR =
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
   webView.setWebViewClient(new WebViewClient(){
    @Override public void onPageFinished(WebView v,String url){
     super.onPageFinished(v,url);
-    if(url.startsWith(REMOTE)) v.evaluateJavascript(REMOTE_DECOR,null);
+    // The web app supplies its own header and pages; avoid duplicate native overlays.
    }
    @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){
     Uri u=r.getUrl(); String scheme=u.getScheme()==null?"":u.getScheme();
@@ -66,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
   if(state==null) webView.loadUrl(HOME); else webView.restoreState(state);
   getOnBackPressedDispatcher().addCallback(this,new OnBackPressedCallback(true){
    @Override public void handleOnBackPressed(){
-    if(!webView.getUrl().startsWith("file:///android_asset")) webView.loadUrl(HOME);
-    else if(webView.canGoBack()) webView.goBack(); else finish();
+    if(webView.canGoBack()) webView.goBack();
+    else finish();
    }
   });
  }
