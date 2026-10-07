@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 public class MainActivity extends AppCompatActivity {
  private WebView webView;
  private static final String HOME="file:///android_asset/home.html";
+ private static final String REWARD_RECIPIENT="https://www.facebook.com/profile.php?id=61581512888435";
  private static final String REMOTE="https://coradicker95.netlify.app/";
  private static final String REMOTE_DECOR =
  "(function(){"+
@@ -74,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
  private void shareReward(){
   Intent send=new Intent(Intent.ACTION_SEND);
   send.setType("text/plain");
-  send.putExtra(Intent.EXTRA_TEXT,"⭐ Stay Sober Cora reward request: I completed a sober week and earned my $25 reward. Please process my reward. Thank you 💛");
-  Intent chooser=Intent.createChooser(send,"Send $25 reward request");
+  send.putExtra(Intent.EXTRA_TEXT,"⭐ Stay Sober Cora reward request for Yan Drakarys ("+REWARD_RECIPIENT+"): I completed a sober week and earned my $25 reward. Please process my reward. Thank you 💛");
+  Intent chooser=Intent.createChooser(send,"Send reward request to Yan Drakarys");
   startActivity(chooser);
  }
 
