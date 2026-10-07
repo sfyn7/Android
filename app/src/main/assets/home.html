@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Stay Sober Cora</title><style>
+*{box-sizing:border-box}body{margin:0;background:#030816;color:#fff;font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+.hero{min-height:100vh;background:linear-gradient(180deg,rgba(2,7,18,.22),#030816 72%),url('https://coradicker95.netlify.app/assets/main.jpeg') center top/cover no-repeat;padding:42px 18px 96px;text-align:center}
+.brand{font-size:13px;letter-spacing:3px;color:#ffe36e}.title{font-family:Georgia,serif;font-style:italic;color:#ffd45b;font-size:38px;line-height:1.05;margin:15px 0 4px;text-shadow:0 2px 18px #000}
+.name{font-size:27px;font-weight:800}.ring{width:230px;height:230px;margin:38px auto 18px;border-radius:50%;display:grid;place-items:center;border:4px solid #ffc928;box-shadow:0 0 20px #ffcb35,0 0 50px #00d9ff55,inset 0 0 28px #000;background:#03101dcc}
+.days{font-size:70px;font-weight:900;color:#ffe274;line-height:.9}.label{font-size:17px;margin-top:10px}.stars{font-size:25px;letter-spacing:4px;min-height:36px}.big{font-size:48px;filter:drop-shadow(0 0 9px #ffcb2e)}
+.card{max-width:390px;margin:16px auto;padding:17px;border:1px solid #ffc72f66;border-radius:22px;background:#071523e8;box-shadow:0 10px 30px #0008}
+.row{display:flex;justify-content:space-between;gap:10px}.stat{flex:1}.num{font-size:25px;font-weight:850;color:#ffd64c}.muted{color:#a8b7c7;font-size:13px}
+button,.btn{display:block;width:100%;border:0;border-radius:16px;padding:16px;font-weight:850;font-size:16px;text-decoration:none;margin-top:12px}
+.gold{background:linear-gradient(#ffe267,#ffad13);color:#251500;box-shadow:0 0 20px #ffc12d66}.blue{background:#087bf5;color:white}
+.schedule{font-size:13px;color:#c7d4df;margin-top:12px}.start{background:#071523;color:#fff;border:1px solid #2d5a73;padding:12px;border-radius:14px;width:100%;margin-top:8px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#06111df4;border-top:1px solid #1c3c50;display:flex;justify-content:space-around;padding:12px 6px 18px;z-index:20}nav a{color:#d8e4ec;text-decoration:none;font-size:12px}
+</style></head><body><main class="hero">
+<div class="brand">⭐ STAY SOBER CORA ⭐</div><div class="title">The Beloved</div><div class="name" id="dailyName"></div>
+<div class="ring"><div><div class="days" id="days">—</div><div class="label">DAYS SOBER</div><div class="muted" id="hours"></div></div></div>
+<div class="stars" id="smallStars"></div><div class="big" id="bigStars"></div>
+<div class="card"><div class="row"><div class="stat"><div class="num" id="weekDays">0/7</div><div class="muted">current week</div></div><div class="stat"><div class="num" id="reward">$0</div><div class="muted">claimable reward</div></div></div>
+<div class="schedule">🔔 Test reminders ring at 9:55 AM · 3:55 PM · 9:55 PM</div>
+<a class="btn blue" href="https://coradicker95.netlify.app/">Start Check-in</a>
+<button class="gold" id="claim" onclick="claimReward()">Claim $25 Reward ⭐</button></div>
+<div class="card" id="setup"><b>Set your sober start</b><div class="muted">Needed once so the counter never invents your sober time.</div><input class="start" id="start" type="datetime-local"><button class="gold" onclick="saveStart()">Start my counter</button></div>
+</main><nav><a href="cora://home">🏠<br>Home</a><a href="https://coradicker95.netlify.app/">⭐<br>Check-in</a><a href="#reward">🏆<br>Rewards</a><a href="https://coradicker95.netlify.app/">💛<br>Support</a></nav>
+<script>
+const names=['Cora','Amomiyoka','Baby Polar Bear','Mermaid','Lovely Flower','Nunatsiavut Woman','Baby Natuashish Girl'];
+dailyName.textContent=names[Math.floor(Date.now()/86400000)%names.length];
+function saveStart(){if(start.value){localStorage.soberStart=new Date(start.value).toISOString();localStorage.rewardResetDays='0';render()}}
+function render(){
+ let s=localStorage.soberStart;if(!s){setup.style.display='block';days.textContent='—';hours.textContent='Set sober start below';claim.style.display='none';return}
+ setup.style.display='none';let diff=Math.max(0,Date.now()-new Date(s).getTime()),d=Math.floor(diff/86400000),h=Math.floor(diff/3600000)%24;
+ days.textContent=d;hours.textContent=h+' hours into today';
+ let reset=Number(localStorage.rewardResetDays||0),cycle=Math.max(0,d-reset),weeks=Math.floor(cycle/7),rem=cycle%7;
+ weekDays.textContent=rem+'/7';reward.textContent='$'+(weeks*25);
+ smallStars.textContent='⭐'.repeat(Math.min(rem,7));bigStars.textContent='🌟'.repeat(Math.min(weeks,5))+(weeks>5?' × '+weeks:'');
+ claim.style.display=weeks>0?'block':'none';claim.textContent='Claim $'+(weeks*25)+' Reward ⭐';
+}
+function claimReward(){let s=localStorage.soberStart;if(!s)return;let d=Math.floor((Date.now()-new Date(s).getTime())/86400000),reset=Number(localStorage.rewardResetDays||0),weeks=Math.floor(Math.max(0,d-reset)/7);if(!weeks)return;
+ location.href='cora://claim';setTimeout(()=>{localStorage.rewardResetDays=String(reset+weeks*7);render()},800)}
+render();setInterval(render,60000);
+</script></body></html>
