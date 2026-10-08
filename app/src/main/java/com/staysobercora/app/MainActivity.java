@@ -2,6 +2,10 @@ package com.staysobercora.app;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.widget.Toast;
+import androidx.core.app.NotificationCompat;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
   super.onCreate(state); setContentView(R.layout.activity_main);
   NotificationScheduler.createChannel(this);
   requestNotificationPermission();
+  // Ask for exact alarm access after the notification flow, not on top of its permission prompt.
   requestExactAlarmPermissionIfNeeded();
   NotificationScheduler.scheduleAll(this);
 
@@ -53,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
    }
    @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){
     Uri u=r.getUrl(); String scheme=u.getScheme()==null?"":u.getScheme();
+    if("cora".equals(scheme)&&"test-notification".equals(u.getHost())){ testNotification(); return true; }
+    if("cora".equals(scheme)&&"notification-settings".equals(u.getHost())){ openNotificationSettings(); return true; }
     if("cora".equals(scheme)&&"claim".equals(u.getHost())){ shareReward(); return true; }
     if("cora".equals(scheme)&&"home".equals(u.getHost())){ v.loadUrl(HOME); return true; }
     if("tel".equals(scheme)){ startActivity(new Intent(Intent.ACTION_DIAL,u)); return true; }
@@ -72,6 +79,27 @@ public class MainActivity extends AppCompatActivity {
   });
  }
 
+ private void testNotification(){
+  if(Build.VERSION.SDK_INT>=33 && ActivityCompat.checkSelfPermission(this,Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED){
+   ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.POST_NOTIFICATIONS},1001);
+   Toast.makeText(this,"Allow notifications, then tap Test again",Toast.LENGTH_LONG).show(); return;
+  }
+  NotificationScheduler.createChannel(this);
+  NotificationManager nm=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+  if(!nm.areNotificationsEnabled()){
+   Toast.makeText(this,"Notifications are disabled in Android settings",Toast.LENGTH_LONG).show(); openNotificationSettings(); return;
+  }
+  nm.notify(99117,new NotificationCompat.Builder(this,NotificationScheduler.CHANNEL_ID)
+   .setSmallIcon(R.drawable.ic_notification_star).setContentTitle("Stay Sober Cora — test notification")
+   .setContentText("Notifications are working. Your reminders are scheduled.").setPriority(NotificationCompat.PRIORITY_HIGH)
+   .setDefaults(NotificationCompat.DEFAULT_ALL).setAutoCancel(true).build());
+  Toast.makeText(this,"Test notification sent",Toast.LENGTH_SHORT).show();
+ }
+ private void openNotificationSettings(){
+  Intent i=new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+  i.putExtra(Settings.EXTRA_APP_PACKAGE,getPackageName());
+  startActivity(i);
+ }
  private void shareReward(){
   Intent send=new Intent(Intent.ACTION_SEND);
   send.setType("text/plain");
