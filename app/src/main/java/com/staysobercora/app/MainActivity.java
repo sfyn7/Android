@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
   super.onCreate(state); setContentView(R.layout.activity_main);
   NotificationScheduler.createChannel(this);
   requestNotificationPermission();
-  // Ask for exact alarm access after the notification flow, not on top of its permission prompt.
-  requestExactAlarmPermissionIfNeeded();
   NotificationScheduler.scheduleAll(this);
 
   webView=findViewById(R.id.webview);
@@ -121,5 +119,11 @@ public class MainActivity extends AppCompatActivity {
   }
  }
  @Override protected void onResume(){super.onResume();NotificationScheduler.scheduleAll(this);}
+ @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults){
+  super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+  if(requestCode==1001 && grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+   Toast.makeText(this,"Notifications allowed. Tap Test Notification to verify.",Toast.LENGTH_LONG).show();
+  }
+ }
  @Override protected void onSaveInstanceState(Bundle out){webView.saveState(out);super.onSaveInstanceState(out);}
 }
