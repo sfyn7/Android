@@ -69,6 +69,14 @@ public class MainActivity extends AppCompatActivity {
    }
   });
   if(state==null) webView.loadUrl(HOME); else webView.restoreState(state);
+  android.widget.Button diagnostics=new android.widget.Button(this);
+  diagnostics.setText("Test notification / alarm settings");
+  diagnostics.setTextSize(12);
+  diagnostics.setOnClickListener(v -> showNotificationDiagnostics());
+  android.widget.FrameLayout root=findViewById(android.R.id.content);
+  android.widget.FrameLayout.LayoutParams lp=new android.widget.FrameLayout.LayoutParams(-2,-2,android.view.Gravity.TOP|android.view.Gravity.END);
+  lp.topMargin=(int)(36*getResources().getDisplayMetrics().density);
+  root.addView(diagnostics,lp);
   getOnBackPressedDispatcher().addCallback(this,new OnBackPressedCallback(true){
    @Override public void handleOnBackPressed(){
     if(webView.canGoBack()) webView.goBack();
@@ -77,6 +85,16 @@ public class MainActivity extends AppCompatActivity {
   });
  }
 
+ private void showNotificationDiagnostics(){
+  NotificationManager nm=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+  AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
+  boolean exact=Build.VERSION.SDK_INT<31 || am.canScheduleExactAlarms();
+  new androidx.appcompat.app.AlertDialog.Builder(this).setTitle("Reminder diagnostics")
+   .setMessage("Notifications: "+(nm.areNotificationsEnabled()?"Enabled":"Disabled")+"\nExact alarms: "+(exact?"Allowed":"Not allowed")+"\nReminders: 9:55 AM, 3:55 PM, 9:55 PM")
+   .setPositiveButton("Test now",(d,w)->testNotification())
+   .setNeutralButton("Alarm access",(d,w)->requestExactAlarmPermissionIfNeeded())
+   .setNegativeButton("Notification settings",(d,w)->openNotificationSettings()).show();
+ }
  private void testNotification(){
   if(Build.VERSION.SDK_INT>=33 && ActivityCompat.checkSelfPermission(this,Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED){
    ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.POST_NOTIFICATIONS},1001);
