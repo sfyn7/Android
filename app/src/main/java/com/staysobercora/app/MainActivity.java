@@ -46,8 +46,11 @@ public class MainActivity extends AppCompatActivity {
   NotificationScheduler.scheduleAll(this);
 
   webView=findViewById(R.id.webview);
+  webView.setVerticalScrollBarEnabled(false);
   WebSettings s=webView.getSettings();
   s.setJavaScriptEnabled(true); s.setDomStorageEnabled(true); s.setDatabaseEnabled(true);
+  s.setUseWideViewPort(true); s.setLoadWithOverviewMode(true);
+  s.setSupportZoom(false); s.setBuiltInZoomControls(false);
   s.setAllowFileAccess(true); s.setAllowContentAccess(false);
   webView.setWebViewClient(new WebViewClient(){
    @Override public void onPageFinished(WebView v,String url){
@@ -69,14 +72,8 @@ public class MainActivity extends AppCompatActivity {
    }
   });
   if(state==null) webView.loadUrl(HOME); else webView.restoreState(state);
-  android.widget.Button diagnostics=new android.widget.Button(this);
-  diagnostics.setText("Test notification / alarm settings");
-  diagnostics.setTextSize(12);
-  diagnostics.setOnClickListener(v -> showNotificationDiagnostics());
-  android.widget.FrameLayout root=findViewById(android.R.id.content);
-  android.widget.FrameLayout.LayoutParams lp=new android.widget.FrameLayout.LayoutParams(-2,-2,android.view.Gravity.TOP|android.view.Gravity.END);
-  lp.topMargin=(int)(36*getResources().getDisplayMetrics().density);
-  root.addView(diagnostics,lp);
+  // Keep the notification diagnostics accessible without covering page content.
+  webView.setOnLongClickListener(v -> { showNotificationDiagnostics(); return true; });
   getOnBackPressedDispatcher().addCallback(this,new OnBackPressedCallback(true){
    @Override public void handleOnBackPressed(){
     if(webView.canGoBack()) webView.goBack();
